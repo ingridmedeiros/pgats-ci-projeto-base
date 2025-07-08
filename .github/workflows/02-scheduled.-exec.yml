@@ -1,0 +1,44 @@
+# CI - NIVEL 2: Disparo automatico em periodos especificos
+
+#nome que vai aparecer nas opções de pipe
+name: 'Execução Agendada'
+
+#trigger ou gatilhos de execução
+    # gatilho de exec agendada = schedule
+
+on:
+    schedule:
+      - cron: '0 8 * * 1'
+
+jobs:
+    #descrição do job
+    e2e-tests:
+
+        #maquina que o job vai executar
+        runs-on: ['ubuntu-latest']
+
+        #passo a passo das acoes do job
+        steps: 
+            - uses: actions/checkout@v4
+            
+            #- uses: actions/setup-node@v4
+            #   with:
+            #      node-version: lts/*
+
+            - name: Instalando Yarn
+              run: npm install -g yarn
+                
+            - name: Instalando depedencias
+              run: yarn
+
+            - name: Instalando Playwrite
+              run: yarn playwright install
+
+            - name: Testes E2E
+              run: yarn run e2e
+            
+            - uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                name: relatorio-de-testes
+                path: ./playwright-report
